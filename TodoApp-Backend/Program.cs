@@ -12,7 +12,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddEntityFrameworkSqlServer();
-builder.Services.AddDbContextPool<TodoContext>(options =>
+builder.Services.AddDbContextPool<TodoAppDbContext>(options =>
 {
     var constring = configuration.GetConnectionString("TodoDb");
     options.UseSqlServer(constring);

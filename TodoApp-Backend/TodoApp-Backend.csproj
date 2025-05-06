@@ -15,8 +15,4 @@
     <ProjectReference Include="..\Todo.Entities\Todo.Entities.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
 </Project>
