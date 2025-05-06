@@ -1,0 +1,12 @@
+﻿CREATE DATABASE TodoAppDb;
+
+USE TodoAppDb;
+
+CREATE TABLE Todo (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Title VARCHAR(255) NOT NULL,
+    Description VARCHAR(500),
+    CreatedDate DATETIME NOT NULL DEFAULT GETDATE(),
+    FinishedDate DATETIME NULL,
+    IsFinished BIT NOT NULL DEFAULT 0
+);
