@@ -21,11 +21,15 @@ namespace TodoApp_Backend.Services
                 query = query.Where(Q => Q.Title.ToLower().Contains(title.ToLower().Trim()));
             }
 
-            query = sort.ToLower() switch
+            if (!string.IsNullOrWhiteSpace(sort))
             {
-                "oldest" => query.OrderBy(t => t.CreatedDate),
-                "latest" => query.OrderByDescending(t => t.CreatedDate)
-            };
+                query = sort.ToLower() switch
+                {
+                    "oldest" => query.OrderBy(t => t.CreatedDate),
+                    "latest" => query.OrderByDescending(t => t.CreatedDate),
+                    _ => query
+                };
+            }
 
             var todos = await query.ToListAsync();
 
@@ -53,7 +57,43 @@ namespace TodoApp_Backend.Services
             _db.Todos.Add(newData);
             await _db.SaveChangesAsync();
 
-            return "success";
+            return "Success";
+        }
+
+        public async Task<string> PutTodo(int id)
+        {
+            var isIdExist = await _db.Todos
+                .Where(Q => Q.Id == id)
+                .FirstOrDefaultAsync();
+
+            if(isIdExist == null)
+            {
+                return "Id not Found";
+            }
+
+            isIdExist.IsFinished = !isIdExist.IsFinished;
+
+            await _db.SaveChangesAsync();
+
+            return "Success";
+        }
+
+        public async Task<string> DeleteTodo(int id)
+        {
+            var isIdExist = await _db.Todos
+                .Where(Q => Q.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (isIdExist == null)
+            {
+                return "Id not Found";
+            }
+
+            _db.Todos.Remove(isIdExist);
+
+            await _db.SaveChangesAsync();
+
+            return "Success";
         }
     }
 }

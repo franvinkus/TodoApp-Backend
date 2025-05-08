@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Todo.Entities;
+using TodoApp_Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -17,6 +18,8 @@ builder.Services.AddDbContextPool<TodoAppDbContext>(options =>
     var constring = configuration.GetConnectionString("TodoDb");
     options.UseSqlServer(constring);
 });
+
+builder.Services.AddTransient<TodoServices>();
 
 var app = builder.Build();
 

@@ -25,7 +25,8 @@ namespace TodoApp_Backend.Controller
             [FromQuery] string? sort
             )
         {
-            
+            var data = await _services.GetTodo(title, sort);
+            return Ok(data);
         }
 
         // POST api/<TodoController>
@@ -42,15 +43,30 @@ namespace TodoApp_Backend.Controller
         }
 
         // PUT api/<TodoController>/5
-        [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        [HttpPut("PutTodo/{id}")]
+        public async Task<IActionResult> Put(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Failed To Update");
+            }
+
+            var data = await _services.PutTodo(id);
+            return Ok(data);
+
         }
 
         // DELETE api/<TodoController>/5
-        [HttpDelete("{id}")]
-        public void Delete(int id)
+        [HttpDelete("DeleteTodo/{id}")]
+        public async Task<IActionResult> Delete(int id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Failed To Update");
+            }
+
+            var data = await _services.DeleteTodo(id);
+            return Ok(data);
         }
     }
 }

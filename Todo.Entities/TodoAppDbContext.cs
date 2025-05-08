@@ -17,9 +17,6 @@ public partial class TodoAppDbContext : DbContext
 
     public virtual DbSet<Todo> Todos { get; set; }
 
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseSqlServer("Server=LAPTOP-EAEJKOII;Initial Catalog=TodoAppDb;User Id=personalDatabase;Password=vinvin123;Encrypt=false");
-
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.Entity<Todo>(entity =>
