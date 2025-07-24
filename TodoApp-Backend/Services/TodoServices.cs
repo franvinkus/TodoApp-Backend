@@ -60,7 +60,7 @@ namespace TodoApp_Backend.Services
             return "Success";
         }
 
-        public async Task<string> PutTodo(int id)
+        public async Task<string> PutTodo(int id, PutTodoModel edit)
         {
             var isIdExist = await _db.Todos
                 .Where(Q => Q.Id == id)
@@ -71,7 +71,35 @@ namespace TodoApp_Backend.Services
                 return "Id not Found";
             }
 
+            isIdExist.Title = edit.Title;
+             isIdExist.Description = edit.Description;
+
+            await _db.SaveChangesAsync();
+
+            return "Success";
+        }
+
+        public async Task<string> PatchTodo(int id)
+        {
+            var isIdExist = await _db.Todos
+                .Where(Q => Q.Id == id)
+                .FirstOrDefaultAsync();
+
+            if (isIdExist == null)
+            {
+                return "Id not Found";
+            }
+
             isIdExist.IsFinished = !isIdExist.IsFinished;
+
+            if (!isIdExist.IsFinished)
+            {
+                isIdExist.FinishedDate = null;
+            }
+            else
+            {
+                isIdExist.FinishedDate = DateTime.Now;
+            }
 
             await _db.SaveChangesAsync();
 

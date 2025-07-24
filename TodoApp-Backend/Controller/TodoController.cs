@@ -44,14 +44,27 @@ namespace TodoApp_Backend.Controller
 
         // PUT api/<TodoController>/5
         [HttpPut("PutTodo/{id}")]
-        public async Task<IActionResult> Put(int id)
+        public async Task<IActionResult> Put(int id, PutTodoModel edit)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Failed To Update");
             }
 
-            var data = await _services.PutTodo(id);
+            var data = await _services.PutTodo(id, edit);
+            return Ok(data);
+
+        }
+
+        [HttpPut("PatchtTodo/{id}")]
+        public async Task<IActionResult> Patch(int id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Failed To Update");
+            }
+
+            var data = await _services.PatchTodo(id);
             return Ok(data);
 
         }
