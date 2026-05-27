@@ -27,7 +27,6 @@ namespace TodoApp_Backend.Services
                 {
                     "oldest" => query.OrderBy(t => t.CreatedDate),
                     "latest" => query.OrderByDescending(t => t.CreatedDate),
-                    _ => query
                 };
             }
 

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Todo.Entities;
 using TodoApp_Backend.Services;
 
@@ -21,7 +22,19 @@ builder.Services.AddDbContextPool<TodoAppDbContext>(options =>
 
 builder.Services.AddTransient<TodoServices>();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+                   .AllowAnyHeader()
+                   .AllowAnyMethod();
+        });
+});
+
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -30,7 +43,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors("AllowSpecificOrigin");
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

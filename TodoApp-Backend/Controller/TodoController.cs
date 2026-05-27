@@ -56,7 +56,7 @@ namespace TodoApp_Backend.Controller
 
         }
 
-        [HttpPut("PatchtTodo/{id}")]
+        [HttpPut("PatchTodo/{id}")]
         public async Task<IActionResult> Patch(int id)
         {
             if (!ModelState.IsValid)
