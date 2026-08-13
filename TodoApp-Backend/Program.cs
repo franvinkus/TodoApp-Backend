@@ -1,6 +1,9 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Todo.Entities;
+using Microsoft.IdentityModel.Tokens;
+using TodoApp_Backend.Data;
 using TodoApp_Backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,12 +16,24 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddEntityFrameworkSqlServer();
 builder.Services.AddDbContextPool<TodoAppDbContext>(options =>
 {
     var constring = configuration.GetConnectionString("TodoDb");
-    options.UseSqlServer(constring);
+    options.UseNpgsql(constring);
 });
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(option =>
+    {
+        option.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8
+                .GetBytes(builder.Configuration.GetSection("AppSettings:Token").Value)),
+            ValidateIssuer = false,
+            ValidateAudience = false,
+        };
+    });
 
 builder.Services.AddTransient<TodoServices>();
 

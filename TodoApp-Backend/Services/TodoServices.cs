@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Todo.Entities;
-using TodoApp_Backend.Models;
+using TodoApp_Backend.Data;
+using TodoApp_Backend.DTOs;
 
 namespace TodoApp_Backend.Services
 {
@@ -45,7 +45,7 @@ namespace TodoApp_Backend.Services
 
         public async Task<string> PostTodo(PostTodoModel req)
         {
-            var newData = new Todo.Entities.Todo
+            var newData = new Models.Todo
             {
                 Title = req.title,
                 Description = req.description,

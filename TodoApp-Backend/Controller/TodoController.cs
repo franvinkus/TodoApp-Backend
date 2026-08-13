@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Todo.Entities;
-using TodoApp_Backend.Models;
+using TodoApp_Backend.Data;
+using TodoApp_Backend.DTOs;
 using TodoApp_Backend.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860

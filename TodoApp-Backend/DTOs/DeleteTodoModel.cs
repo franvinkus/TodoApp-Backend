@@ -1,4 +1,4 @@
-﻿namespace TodoApp_Backend.Models
+﻿namespace TodoApp_Backend.DTOs
 {
     public class DeleteTodoModel
     {
