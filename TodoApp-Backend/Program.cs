@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.Services;
+using TodoApp_Backend.Services.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
@@ -36,6 +37,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     });
 
 builder.Services.AddTransient<TodoServices>();
+builder.Services.AddTransient<UserServices>();
 
 builder.Services.AddCors(options =>
 {

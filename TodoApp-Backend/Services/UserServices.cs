@@ -10,7 +10,7 @@ using TodoApp_Backend.Data;
 using TodoApp_Backend.DTOs;
 using TodoApp_Backend.Models;
 
-namespace Bourt.Services.Interface
+namespace TodoApp_Backend.Services.Interface
 {
     public class UserServices
     {
@@ -67,10 +67,9 @@ namespace Bourt.Services.Interface
 
         public async Task<UsersLoginResponse> Login(UsersLoginRequest request, CancellationToken cancellationToken)
         {
-            var checkEmail = await _db.Users.FirstOrDefaultAsync(x => x.Email == request.Email, cancellationToken);
-            bool checkPassword = BCrypt.Net.BCrypt.Verify(request.Password, checkEmail.PasswordHash);
+            var checkUsernamel = await _db.Users.FirstOrDefaultAsync(x => x.Username == request.Username, cancellationToken);
 
-            if (checkEmail == null || !checkPassword)
+            if (checkUsernamel == null || !BCrypt.Net.BCrypt.Verify(request.Password, checkUsernamel.PasswordHash))
             {
                 return new UsersLoginResponse
                 {
@@ -79,7 +78,7 @@ namespace Bourt.Services.Interface
             }
             else
             {
-                var token = createToken(checkEmail);
+                var token = createToken(checkUsernamel);
                 return new UsersLoginResponse
                 {
                     Message = "Success",

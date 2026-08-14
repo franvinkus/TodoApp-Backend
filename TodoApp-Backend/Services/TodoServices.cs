@@ -12,9 +12,11 @@ namespace TodoApp_Backend.Services
              _db = db;
         }
 
-        public async Task<List<GetTodoModel>> GetTodo(string? title, string sort)
+        public async Task<List<GetTodoModel>> GetTodo(string? title, string sort, Guid userId)
         {
             var query = _db.Todos.AsQueryable();
+
+            query = query.Where(x => x.UserId == userId);
 
             if (!string.IsNullOrWhiteSpace(title))
             {
@@ -43,14 +45,15 @@ namespace TodoApp_Backend.Services
             }).ToList();
         }
 
-        public async Task<string> PostTodo(PostTodoModel req)
+        public async Task<string> PostTodo(PostTodoModel req, Guid userId)
         {
             var newData = new Models.Todo
             {
                 Title = req.title,
                 Description = req.description,
-                CreatedDate = DateTime.Now,
+                CreatedDate = DateTime.UtcNow,
                 IsFinished = false,
+                UserId = userId,
             };
 
             _db.Todos.Add(newData);
@@ -97,7 +100,7 @@ namespace TodoApp_Backend.Services
             }
             else
             {
-                isIdExist.FinishedDate = DateTime.Now;
+                isIdExist.FinishedDate = DateTime.UtcNow;
             }
 
             await _db.SaveChangesAsync();
