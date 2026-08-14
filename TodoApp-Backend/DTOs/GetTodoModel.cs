@@ -1,7 +1,11 @@
-﻿namespace TodoApp_Backend.DTOs
+﻿using System.Text.Json.Serialization;
+
+namespace TodoApp_Backend.DTOs
 {
     public class GetTodoModel
     {
+        [JsonIgnore]
+        public Guid UserId { get; set; }
         public int id { get; set; }
         public string title { get; set; } = string.Empty;
         public string description { get; set; } = string.Empty;
