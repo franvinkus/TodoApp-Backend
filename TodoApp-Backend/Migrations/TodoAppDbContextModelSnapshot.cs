@@ -36,11 +36,17 @@ namespace TodoApp_Backend.Migrations
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<DateTime?>("FinishedDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsFinished")
                         .HasColumnType("boolean");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Title")
                         .IsRequired()
