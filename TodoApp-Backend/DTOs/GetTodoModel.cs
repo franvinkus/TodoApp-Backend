@@ -11,6 +11,8 @@ namespace TodoApp_Backend.DTOs
         public string description { get; set; } = string.Empty;
         public string createdAt { get; set; } = string.Empty;
         public string finishedAt { get; set; } = string.Empty;
+        public string startDate {  get; set; } = string.Empty;
+        public string endDate { get; set; } = string.Empty;
         public bool isCompleted { get; set; }
 
     }
