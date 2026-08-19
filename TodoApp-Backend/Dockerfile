@@ -13,7 +13,6 @@ FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["TodoApp-Backend/TodoApp-Backend.csproj", "TodoApp-Backend/"]
-COPY ["Todo.Entities/Todo.Entities.csproj", "Todo.Entities/"]
 RUN dotnet restore "./TodoApp-Backend/TodoApp-Backend.csproj"
 COPY . .
 WORKDIR "/src/TodoApp-Backend"
