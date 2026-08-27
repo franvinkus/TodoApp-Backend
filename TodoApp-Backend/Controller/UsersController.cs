@@ -48,6 +48,12 @@ namespace TodoApp_Backend.Controllers
             }
         }
 
+        [HttpGet("health")]
+        public IActionResult HealthCheck()
+        {
+            return Ok("Server is awake and healthy!");
+        }
+
         [HttpGet("cek-rahasia")]
         [Authorize] // <--- Gemboknya di sini!
         public IActionResult CekRahasia()
