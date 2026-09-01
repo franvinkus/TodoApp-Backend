@@ -54,8 +54,8 @@ namespace TodoApp_Backend.Services
                 Title = req.title,
                 Description = req.description,
                 CreatedDate = DateTime.UtcNow,
-                StartDate = Convert.ToDateTime(req.startDate).ToUniversalTime(),
-                EndDate = Convert.ToDateTime(req.endDate).ToUniversalTime(),
+                StartDate = DateTime.SpecifyKind(Convert.ToDateTime(req.startDate), DateTimeKind.Utc),
+                EndDate = DateTime.SpecifyKind(Convert.ToDateTime(req.endDate), DateTimeKind.Utc),
                 IsFinished = false,
                 UserId = userId,
             };
@@ -79,8 +79,8 @@ namespace TodoApp_Backend.Services
 
             isIdExist.Title = edit.Title;
             isIdExist.Description = edit.Description;
-            isIdExist.StartDate = Convert.ToDateTime(edit.startDate).ToUniversalTime();
-            isIdExist.EndDate = Convert.ToDateTime(edit.endDate).ToUniversalTime();
+            isIdExist.StartDate = DateTime.SpecifyKind(Convert.ToDateTime(edit.startDate), DateTimeKind.Utc);
+            isIdExist.EndDate = DateTime.SpecifyKind(Convert.ToDateTime(edit.endDate), DateTimeKind.Utc);
 
             await _db.SaveChangesAsync();
 
