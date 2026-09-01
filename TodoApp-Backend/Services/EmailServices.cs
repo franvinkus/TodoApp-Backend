@@ -39,6 +39,7 @@ namespace TodoApp_Backend.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error: ", ex);
+                throw;
             }
             finally
             {
