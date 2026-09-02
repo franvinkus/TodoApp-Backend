@@ -6,5 +6,6 @@
         public string? description { get; set; } = string.Empty;
         public string startDate { get; set; } = string.Empty;
         public string endDate { get; set; } = string.Empty;
+        public string TodoPriority { get; set; } = string.Empty;
     }
 }

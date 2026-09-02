@@ -43,7 +43,8 @@ namespace TodoApp_Backend.Services
                 finishedAt = t.FinishedDate.HasValue ? t.FinishedDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : "-",
                 startDate = t.StartDate.ToString("dd-MM-yyyy HH:mm:ss"),
                 endDate = t.EndDate.ToString("dd-MM-yyyy HH:mm:ss"),
-                isCompleted = t.IsFinished
+                isCompleted = t.IsFinished,
+                TodoPriority = t.TodoPriority
             }).ToList();
         }
 
@@ -57,6 +58,7 @@ namespace TodoApp_Backend.Services
                 StartDate = DateTime.SpecifyKind(Convert.ToDateTime(req.startDate), DateTimeKind.Utc),
                 EndDate = DateTime.SpecifyKind(Convert.ToDateTime(req.endDate), DateTimeKind.Utc),
                 IsFinished = false,
+                TodoPriority = req.TodoPriority,
                 UserId = userId,
             };
 
@@ -81,6 +83,7 @@ namespace TodoApp_Backend.Services
             isIdExist.Description = edit.Description;
             isIdExist.StartDate = DateTime.SpecifyKind(Convert.ToDateTime(edit.startDate), DateTimeKind.Utc);
             isIdExist.EndDate = DateTime.SpecifyKind(Convert.ToDateTime(edit.endDate), DateTimeKind.Utc);
+            isIdExist.TodoPriority = edit.TodoPriority;
 
             await _db.SaveChangesAsync();
 

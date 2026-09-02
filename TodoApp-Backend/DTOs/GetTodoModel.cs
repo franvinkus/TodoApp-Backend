@@ -14,6 +14,7 @@ namespace TodoApp_Backend.DTOs
         public string startDate {  get; set; } = string.Empty;
         public string endDate { get; set; } = string.Empty;
         public bool isCompleted { get; set; }
+        public string TodoPriority { get; set; } = string.Empty;
 
     }
 }
