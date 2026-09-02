@@ -15,5 +15,5 @@ public partial class Todo
     public DateTime CreatedDate { get; set; }
     public DateTime? FinishedDate { get; set; }
     public bool IsFinished { get; set; }
-
+    public string TodoPriority { get; set; } = string.Empty;
 }
