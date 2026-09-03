@@ -29,6 +29,7 @@ namespace TodoApp_Backend.Services
             using var smtp = new SmtpClient();
             try
             {
+                smtp.Timeout = 30000;
                 await smtp.ConnectAsync(_config["EmailSettings:SmtpHost"], int.Parse(_config["EmailSettings:SmtpPort"]), SecureSocketOptions.StartTls);
                 smtp.AuthenticationMechanisms.Remove("XOAUTH2");
                 await smtp.AuthenticateAsync(_config["EmailSettings:SenderEmail"], _config["EmailSettings:SenderPassword"]);
