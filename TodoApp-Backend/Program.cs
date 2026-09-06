@@ -1,10 +1,11 @@
-using System.Text;
 using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Resend;
+using System.Text;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.Services;
 using TodoApp_Backend.Services.Interface;
@@ -92,7 +93,6 @@ app.MapControllers();
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<TodoAppDbContext>();
-    // Baris ini akan memaksa Entity Framework membuat database & tabel jika belum ada
     dbContext.Database.EnsureCreated();
 }
 
