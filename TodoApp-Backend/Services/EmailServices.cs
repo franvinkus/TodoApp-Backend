@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Configuration;
 using MimeKit;
 using Resend;
+using System.Diagnostics;
 
 namespace TodoApp_Backend.Services
 {
@@ -18,7 +18,7 @@ namespace TodoApp_Backend.Services
 
         public async Task SendEmail(string toEmail, string subject, string body)
         {
-            IResend resend = ResendClient.Create("re_2MkwVHqt_D3wHmAJKwfmnhxMcnLY7Ckv7");
+            IResend resend = ResendClient.Create("FILL_WITH_YOUR_API_KEY");
 
             var message = new EmailMessage
             {
@@ -36,13 +36,12 @@ namespace TodoApp_Backend.Services
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error pengiriman API: ", ex);
-                throw; // Lempar kembali agar Hangfire bisa mencatat kegagalan jika API down
+                throw; 
             }
         }
 
         //public async Task SendEmail(string toEmail,  string subject, string body)
         //{
-        //    var email = new MimeMessage();
 
         //    email.From.Add(new MailboxAddress("Vincent's Todo Tasks", _config["EmailSettings:SenderEmail"]));
         //    email.To.Add(MailboxAddress.Parse(toEmail));
