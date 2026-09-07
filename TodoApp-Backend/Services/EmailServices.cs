@@ -18,7 +18,7 @@ namespace TodoApp_Backend.Services
 
         public async Task SendEmail(string toEmail, string subject, string body)
         {
-            var key = _config["EmailSettings:SmtpHost"];
+            var key = _config["EmailSettings:ApiKey"];
             IResend resend = ResendClient.Create(key);
 
             var message = new EmailMessage
