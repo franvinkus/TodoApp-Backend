@@ -44,7 +44,7 @@ namespace TodoApp_Backend.Controllers
                 {
                     HttpOnly = true,
                     Secure = Request.IsHttps,
-                    SameSite = SameSiteMode.None,
+                    SameSite = SameSiteMode.Lax,
                     Expires = DateTime.UtcNow.AddDays(7)
                 };
 
@@ -68,7 +68,7 @@ namespace TodoApp_Backend.Controllers
             {
                 HttpOnly = true, 
                 Secure = Request.IsHttps,
-                SameSite = SameSiteMode.None
+                SameSite = SameSiteMode.Lax
 
             });
 
