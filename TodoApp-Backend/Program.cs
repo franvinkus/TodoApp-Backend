@@ -3,7 +3,6 @@ using Hangfire;
 using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.Services;
@@ -44,6 +43,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuer = false,
             ValidateAudience = false,
         };
+
+        option.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.Request.Cookies.ContainsKey("jwt"))
+                {
+                    context.Token = context.Request.Cookies["jwt"];
+                }
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddTransient<TodoServices>();
@@ -56,9 +67,10 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAll",
         builder =>
         {
-            builder.AllowAnyOrigin()
+            builder.WithOrigins("http://localhost:3000", "https://todo.vincentkurnia.com")
                    .AllowAnyHeader()
-                   .AllowAnyMethod();
+                   .AllowAnyMethod()
+                   .AllowCredentials();
         });
 });
 
@@ -71,7 +83,7 @@ RecurringJob.AddOrUpdate<ReminderServices>(
     Cron.Daily(8,0),
     new RecurringJobOptions
         {
-            TimeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time")
+            TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Jakarta")
         }
     );
 
@@ -81,7 +93,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
+app.UseRouting();
 app.UseCors("AllowAll");
 //app.UseHttpsRedirection();
 
