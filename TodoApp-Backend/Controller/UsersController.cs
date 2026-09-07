@@ -40,12 +40,40 @@ namespace TodoApp_Backend.Controllers
 
             if (result.Message.ToLower() == "success")
             {
-                return Ok(result.Token);
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = Request.IsHttps,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                };
+
+                Response.Cookies.Append("jwt", result.Token, cookieOptions);
+
+                return Ok(new {
+                    Message = "Login sukses" ,
+                    username = model.Username
+                });
             }
             else
             {
                 return BadRequest(result);
             }
+        }
+
+        [HttpPost("user-logout")]
+        public IActionResult Logout()
+        {
+            Response.Cookies.Delete("jwt", new CookieOptions
+            {
+                HttpOnly = true, 
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Strict
+
+            });
+
+            return Ok(new { Message = "Logout sukses" });
+
         }
 
         [HttpGet("health")]
