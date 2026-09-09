@@ -1,5 +1,3 @@
-using Hangfire;
-using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -18,14 +16,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-
-var constring = configuration.GetConnectionString("TodoDb");
-builder.Services.AddHangfire(config => config
-    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
-    .UseSimpleAssemblyNameTypeSerializer()
-    .UseRecommendedSerializerSettings()
-    .UsePostgreSqlStorage(c => c.UseNpgsqlConnection(constring)));
-builder.Services.AddHangfireServer();
 
 builder.Services.AddDbContextPool<TodoAppDbContext>(options =>
 {
@@ -76,17 +66,6 @@ builder.Services.AddCors(options =>
 });
 
 var app = builder.Build();
-
-app.UseHangfireDashboard();
-RecurringJob.AddOrUpdate<ReminderServices>(
-    "daily-reminder-email",
-    service => service.SendDailyReminder(),
-    Cron.Daily(8,0),
-    new RecurringJobOptions
-        {
-            TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Jakarta")
-        }
-    );
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
