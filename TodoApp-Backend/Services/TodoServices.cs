@@ -2,6 +2,7 @@
 using TodoApp_Backend.Constant;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.DTOs;
+using TodoApp_Backend.Models;
 
 namespace TodoApp_Backend.Services
 {
@@ -24,25 +25,35 @@ namespace TodoApp_Backend.Services
                 query = query.Where(Q => Q.Title.ToLower().Contains(title.ToLower().Trim()));
             }
 
-            if (!string.IsNullOrWhiteSpace(sort))
-            {
-                query = sort.ToLower() switch
-                {
-                    "oldest" => query.OrderBy(t => t.CreatedDate),
-                    "latest" => query.OrderByDescending(t => t.CreatedDate),
-                };
-            }
+            IOrderedQueryable<Todo> orderedQuery;
 
             if (!string.IsNullOrWhiteSpace(prioritySort))
             {
-                query = sort.ToLower() switch
+                orderedQuery = prioritySort.ToLower() switch
                 {
-                    "high" => query.OrderBy(t => t.TodoPriority),
-                    "low" => query.OrderByDescending(t => t.TodoPriority),
+                    "high" => query.OrderByDescending(t => t.TodoPriority),
+                    "low" => query.OrderBy(t => t.TodoPriority),
+                    _ => query.OrderByDescending(t => t.TodoPriority),
+                };
+
+                orderedQuery = (string.IsNullOrWhiteSpace(sort) ? "latest" : sort.ToLower()) switch
+                {
+                    "oldest" => orderedQuery.ThenBy(t => t.CreatedDate),
+                    "latest" => orderedQuery.ThenByDescending(t => t.CreatedDate),
+                    _ => orderedQuery.ThenByDescending(t => t.CreatedDate)
+                };
+            }
+            else
+            {
+                orderedQuery = (string.IsNullOrWhiteSpace(sort) ? "latest" : sort.ToLower()) switch
+                {
+                    "oldest" => query.OrderBy(t => t.CreatedDate),
+                    "latest" => query.OrderByDescending(t => t.CreatedDate),
+                    _ => query.OrderByDescending(t => t.CreatedDate)
                 };
             }
 
-            var todos = await query.ToListAsync();
+            var todos = await orderedQuery.ToListAsync();
 
             return todos.Select(t => new GetTodoModel
             {
