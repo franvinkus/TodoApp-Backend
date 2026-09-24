@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TodoApp_Backend.Constant;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.DTOs;
 
@@ -12,7 +13,7 @@ namespace TodoApp_Backend.Services
              _db = db;
         }
 
-        public async Task<List<GetTodoModel>> GetTodo(string? title, string sort, Guid userId)
+        public async Task<List<GetTodoModel>> GetTodo(string? title, string? sort, string? prioritySort, Guid userId)
         {
             var query = _db.Todos.AsQueryable();
 
@@ -32,6 +33,15 @@ namespace TodoApp_Backend.Services
                 };
             }
 
+            if (!string.IsNullOrWhiteSpace(prioritySort))
+            {
+                query = sort.ToLower() switch
+                {
+                    "high" => query.OrderBy(t => t.TodoPriority),
+                    "low" => query.OrderByDescending(t => t.TodoPriority),
+                };
+            }
+
             var todos = await query.ToListAsync();
 
             return todos.Select(t => new GetTodoModel
@@ -44,7 +54,7 @@ namespace TodoApp_Backend.Services
                 startDate = t.StartDate.ToString("dd-MM-yyyy HH:mm:ss"),
                 endDate = t.EndDate.ToString("dd-MM-yyyy HH:mm:ss"),
                 isCompleted = t.IsFinished,
-                TodoPriority = t.TodoPriority
+                TodoPriority = t.TodoPriority.ToString()
             }).ToList();
         }
 
@@ -58,7 +68,7 @@ namespace TodoApp_Backend.Services
                 StartDate = DateTime.SpecifyKind(Convert.ToDateTime(req.startDate), DateTimeKind.Utc),
                 EndDate = DateTime.SpecifyKind(Convert.ToDateTime(req.endDate), DateTimeKind.Utc),
                 IsFinished = false,
-                TodoPriority = req.TodoPriority,
+                TodoPriority = Enum.Parse<PriorityEnum>(req.TodoPriority, true),
                 UserId = userId,
             };
 
@@ -83,7 +93,7 @@ namespace TodoApp_Backend.Services
             isIdExist.Description = edit.Description;
             isIdExist.StartDate = DateTime.SpecifyKind(Convert.ToDateTime(edit.startDate), DateTimeKind.Utc);
             isIdExist.EndDate = DateTime.SpecifyKind(Convert.ToDateTime(edit.endDate), DateTimeKind.Utc);
-            isIdExist.TodoPriority = edit.TodoPriority;
+            isIdExist.TodoPriority = Enum.Parse<PriorityEnum>(edit.TodoPriority, true);
 
             await _db.SaveChangesAsync();
 
