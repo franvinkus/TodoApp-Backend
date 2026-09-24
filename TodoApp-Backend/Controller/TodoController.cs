@@ -23,11 +23,11 @@ namespace TodoApp_Backend.Controller
         // GET: api/<TodoController>
         [HttpGet("Get")]
         [Authorize]
-        public async Task<IActionResult> Get([FromQuery] string? title, [FromQuery] string? sort)
+        public async Task<IActionResult> Get([FromQuery] string? title, [FromQuery] string? sort, [FromQuery] string? prioritySort)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var userIdString = Guid.Parse(userId);
-            var data = await _services.GetTodo(title, sort, userIdString);
+            var data = await _services.GetTodo(title, sort, prioritySort, userIdString);
             return Ok(data);
         }
 

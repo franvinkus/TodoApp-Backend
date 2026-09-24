@@ -52,9 +52,8 @@ namespace TodoApp_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("TodoPriority")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("TodoPriority")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
