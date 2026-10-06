@@ -1,11 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TodoApp_Backend.Data;
 using TodoApp_Backend.DTOs;
-using TodoApp_Backend.Services.Implementation;
 using TodoApp_Backend.Services.Interface;
-
-// For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
 namespace TodoApp_Backend.Controller
 {
@@ -13,11 +9,9 @@ namespace TodoApp_Backend.Controller
     [ApiController]
     public class TodoController : ControllerBase
     {
-        public readonly TodoAppDbContext _db;
         public readonly ITodoService _services;
-        public TodoController(TodoAppDbContext db, ITodoService services)
+        public TodoController(ITodoService services)
         {
-            _db = db;
             _services = services;
         }
 

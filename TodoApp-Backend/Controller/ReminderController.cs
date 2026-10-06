@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using System.Runtime.InteropServices;
-using TodoApp_Backend.Services;
+﻿using Microsoft.AspNetCore.Mvc;
+using TodoApp_Backend.Services.Implementation;
+using TodoApp_Backend.Services.Interface;
 
 namespace TodoApp_Backend.Controller
 {
@@ -9,7 +8,7 @@ namespace TodoApp_Backend.Controller
     [ApiController]
     public class ReminderController : ControllerBase
     {
-        private readonly ReminderServices _s;
+        private readonly IReminderService _s;
         private readonly IConfiguration _c;
 
         public ReminderController(ReminderServices s, IConfiguration c)
@@ -19,7 +18,7 @@ namespace TodoApp_Backend.Controller
         }
 
         [HttpPost("reminder-job")]
-        public async Task<IActionResult> GetReminderJob([FromHeader(Name = "X-Job-Secret")] string secret)
+        public async Task<IActionResult> GetReminderJob([FromHeader(Name = "X-Job-Secret")] string secret, CancellationToken cancellationToken)
         {
             var expectedSecret = _c["JobSecret"];
             if (string.IsNullOrEmpty(secret) || secret != expectedSecret)
@@ -29,7 +28,7 @@ namespace TodoApp_Backend.Controller
 
             try
             {
-                await _s.SendDailyReminder();
+                await _s.SendDailyReminder(cancellationToken);
                 return Ok(new { Message = "Reminder job executed successfully." });
 
             }
