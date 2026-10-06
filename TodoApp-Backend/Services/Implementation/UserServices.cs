@@ -57,7 +57,7 @@ namespace TodoApp_Backend.Services.Implementation
 
         public async Task<UsersLoginResponse> Login(UsersLoginRequest request, CancellationToken cancellationToken)
         {
-            var checkUsernamel = await _u.CheckUserById(request.Username, cancellationToken);
+            var checkUsernamel = await _u.CheckUserByUsername(request.Username, cancellationToken);
 
             if (checkUsernamel == null || !_c.VerifyPassword(request.Password, checkUsernamel.PasswordHash))
             {
