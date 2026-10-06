@@ -71,5 +71,14 @@ namespace TodoApp_Backend.Repositories.Implementation
         {
             await _db.SaveChangesAsync(cancellationToken);
         }
+
+        public async Task<List<Todo>> GetPendingTodos(DateTime today, DateTime max, CancellationToken cancellationToken)
+        {
+            return await _db.Todos
+                .Include(x => x.User)
+                .Where(x => !x.IsFinished && x.EndDate.Date >= today && x.EndDate.Date <= max)
+                .AsNoTracking()
+                .ToListAsync();
+        }
     }
 }

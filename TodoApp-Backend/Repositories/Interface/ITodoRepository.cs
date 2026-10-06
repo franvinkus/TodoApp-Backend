@@ -10,5 +10,6 @@ namespace TodoApp_Backend.Repositories.Interface
         void AddTodo(Todo todo);
         void RemoveTodo(Todo todo);
         Task SaveTodo(CancellationToken cancellationToken);
+        Task<List<Todo>> GetPendingTodos(DateTime dateNow, DateTime max, CancellationToken cancellationToken);
     }
 }

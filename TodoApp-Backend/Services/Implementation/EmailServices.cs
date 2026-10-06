@@ -1,13 +1,9 @@
-﻿using MailKit.Net.Smtp;
-using MailKit.Security;
-using Microsoft.Extensions.Configuration;
-using MimeKit;
-using Resend;
-using System.Diagnostics;
+﻿using Resend;
+using TodoApp_Backend.Services.Interface;
 
-namespace TodoApp_Backend.Services
+namespace TodoApp_Backend.Services.Implementation
 {
-    public class EmailServices
+    public class EmailServices : IEmailService
     {
         private readonly IConfiguration _config;
 
@@ -16,7 +12,7 @@ namespace TodoApp_Backend.Services
             _config = config;
         }
 
-        public async Task SendEmail(string toEmail, string subject, string body)
+        public async Task SendEmail(string toEmail, string subject, string body, CancellationToken cancellationToken)
         {
             var key = _config["EmailSettings:ApiKey"];
             IResend resend = ResendClient.Create(key);

@@ -1,29 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using TodoApp_Backend.Data;
+using TodoApp_Backend.Repositories.Interface;
+using TodoApp_Backend.Services.Interface;
 
-namespace TodoApp_Backend.Services
+namespace TodoApp_Backend.Services.Implementation
 {
-    public class ReminderServices
+    public class ReminderServices: IReminderService
     {
-        private readonly TodoAppDbContext _db;
-        private readonly EmailServices _em;
+        private readonly IEmailService _em;
+        private readonly ITodoRepository _t;
 
-        public ReminderServices(TodoAppDbContext db, EmailServices em)
+        public ReminderServices(ITodoRepository t, IEmailService em)
         {
-            _db = db;
             _em = em;
+            _t = t;
         }
 
-        public async Task SendDailyReminder()
+        public async Task SendDailyReminder(CancellationToken cancellationToken)
         {
             var today = DateTime.UtcNow.Date;
             var maxLimit = today.AddDays(15);
 
-            var pendingTodos = await _db.Todos
-                .Include(x => x.User)
-                .Where(x => !x.IsFinished && x.EndDate.Date >= today && x.EndDate.Date <= maxLimit)
-                .ToListAsync();
+            var pendingTodos = await _t.GetPendingTodos(today, maxLimit, cancellationToken);
 
             var groupedTodos = pendingTodos.GroupBy(t => t.User);
 
