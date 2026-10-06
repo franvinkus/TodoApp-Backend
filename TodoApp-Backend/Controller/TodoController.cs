@@ -2,7 +2,8 @@
 using Microsoft.AspNetCore.Mvc;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.DTOs;
-using TodoApp_Backend.Services;
+using TodoApp_Backend.Services.Implementation;
+using TodoApp_Backend.Services.Interface;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -13,8 +14,8 @@ namespace TodoApp_Backend.Controller
     public class TodoController : ControllerBase
     {
         public readonly TodoAppDbContext _db;
-        public readonly TodoServices _services;
-        public TodoController(TodoAppDbContext db, TodoServices services)
+        public readonly ITodoService _services;
+        public TodoController(TodoAppDbContext db, ITodoService services)
         {
             _db = db;
             _services = services;
@@ -23,18 +24,18 @@ namespace TodoApp_Backend.Controller
         // GET: api/<TodoController>
         [HttpGet("Get")]
         [Authorize]
-        public async Task<IActionResult> Get([FromQuery] string? title, [FromQuery] string? sort, [FromQuery] string? prioritySort)
+        public async Task<IActionResult> Get([FromQuery] string? title, [FromQuery] string? sort, [FromQuery] string? prioritySort, CancellationToken cancellationToken)
         {
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var userIdString = Guid.Parse(userId);
-            var data = await _services.GetTodo(title, sort, prioritySort, userIdString);
+            var data = await _services.GetTodo(title, sort, prioritySort, userIdString, cancellationToken);
             return Ok(data);
         }
 
         // POST api/<TodoController>
         [HttpPost("Post")]
         [Authorize]
-        public async Task<IActionResult> Post([FromBody] PostTodoModel req)
+        public async Task<IActionResult> Post([FromBody] PostTodoModel req, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
@@ -42,35 +43,35 @@ namespace TodoApp_Backend.Controller
             }
             var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
             var userIdString = Guid.Parse(userId);
-            var data = await _services.PostTodo(req, userIdString);
+            var data = await _services.PostTodo(req, userIdString, cancellationToken);
             return Ok(data);
         }
 
         // PUT api/<TodoController>/5
         [HttpPut("PutTodo/{id}")]
         [Authorize]
-        public async Task<IActionResult> Put(int id, PutTodoModel edit)
+        public async Task<IActionResult> Put(int id, PutTodoModel edit, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Failed To Update");
             }
 
-            var data = await _services.PutTodo(id, edit);
+            var data = await _services.PutTodo(id, edit, cancellationToken);
             return Ok(data);
 
         }
 
         [HttpPut("PatchTodo/{id}")]
         [Authorize]
-        public async Task<IActionResult> Patch(int id)
+        public async Task<IActionResult> Patch(int id, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Failed To Update");
             }
 
-            var data = await _services.PatchTodo(id);
+            var data = await _services.PatchTodo(id, cancellationToken);
             return Ok(data);
 
         }
@@ -78,14 +79,14 @@ namespace TodoApp_Backend.Controller
         // DELETE api/<TodoController>/5
         [HttpDelete("DeleteTodo/{id}")]
         [Authorize]
-        public async Task<IActionResult> Delete(int id)
+        public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest("Failed To Update");
             }
 
-            var data = await _services.DeleteTodo(id);
+            var data = await _services.DeleteTodo(id, cancellationToken);
             return Ok(data);
         }
     }

@@ -4,8 +4,7 @@ using Microsoft.IdentityModel.Tokens;
 using Resend;
 using System.Text;
 using TodoApp_Backend.Data;
-using TodoApp_Backend.Services;
-using TodoApp_Backend.Services.Interface;
+using TodoApp_Backend.Services.Implementation;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
