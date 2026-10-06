@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using System.Diagnostics;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.Repositories.Interface;
@@ -26,6 +27,8 @@ namespace TodoApp_Backend.Services.Implementation
 
             var groupedTodos = pendingTodos.GroupBy(t => t.User);
 
+            var emailTasks = new List<Task>();
+
             foreach (var userGroup in groupedTodos)
             {
                 var user = userGroup.Key;
@@ -50,8 +53,11 @@ namespace TodoApp_Backend.Services.Implementation
 
 
                 Debug.WriteLine($"Mengirim email ke User ID {user.Id}: yang berisi: {totalTasks} hari ini!");
-                await _em.SendEmail(toEmail, subject, body);
+                emailTasks.Add(_em.SendEmail(toEmail, subject, body, cancellationToken));
             }
+
+            await Task.WhenAll(emailTasks);
+
             Debug.WriteLine("Selesai mengirim email harian!");
         }
     }
