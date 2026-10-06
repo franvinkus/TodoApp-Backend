@@ -1,9 +1,7 @@
-﻿using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp_Backend.DTOs;
-using TodoApp_Backend.Services.Interface;
+using TodoApp_Backend.Services.Implementation;
 
 namespace TodoApp_Backend.Controllers
 {
@@ -11,9 +9,9 @@ namespace TodoApp_Backend.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserServices _services;
+        private readonly IUserServices _services;
 
-        public UserController(UserServices services)
+        public UserController(IUserServices services)
         {
             _services = services;
         }
