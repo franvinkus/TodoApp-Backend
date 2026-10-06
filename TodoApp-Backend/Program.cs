@@ -1,18 +1,18 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Resend;
 using System.Text;
 using TodoApp_Backend.Data;
+using TodoApp_Backend.Repositories.Implementation;
+using TodoApp_Backend.Repositories.Interface;
 using TodoApp_Backend.Services.Implementation;
+using TodoApp_Backend.Services.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -53,6 +53,8 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 builder.Services.AddTransient<IJwtService, JwtService>();
 builder.Services.AddTransient<ICryptographyService, CryptographyService>();
+builder.Services.AddTransient<IReminderService, ReminderServices>();
+builder.Services.AddTransient<IEmailService, EmailServices>();
 
 builder.Services.AddCors(options =>
 {
