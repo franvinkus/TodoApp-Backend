@@ -70,7 +70,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddStackExchangeRedisCache(options =>
 {
-    options.Configuration = "localhost:6379";
+    options.Configuration = configuration.GetConnectionString("Redis");
     options.InstanceName = "TodoApp_";
 });
 

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.Models;
 using TodoApp_Backend.Repositories.Interface;
@@ -23,9 +24,14 @@ namespace TodoApp_Backend.Repositories.Implementation
             var cacheString = $"todos_{userId}";
             var getCached = await _d.GetStringAsync(cacheString, cancellationToken);
 
+            var jsonOptions = new JsonSerializerOptions
+            {
+                ReferenceHandler = ReferenceHandler.IgnoreCycles
+            };
+
             if (!string.IsNullOrEmpty(getCached))
             {
-                return JsonSerializer.Deserialize<List<Todo>>(getCached);
+                return JsonSerializer.Deserialize<List<Todo>>(getCached, jsonOptions);
             }
             
             var rawTodos = await _db.Todos
@@ -38,7 +44,7 @@ namespace TodoApp_Backend.Repositories.Implementation
                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15)
             };
 
-            await _d.SetStringAsync(cacheString, JsonSerializer.Serialize(rawTodos), cacheOptions);
+            await _d.SetStringAsync(cacheString, JsonSerializer.Serialize(rawTodos, jsonOptions), cacheOptions, cancellationToken);
 
             return rawTodos;
         }
