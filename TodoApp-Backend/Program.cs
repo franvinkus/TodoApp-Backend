@@ -47,10 +47,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddTransient<TodoServices>();
-builder.Services.AddTransient<UserServices>();
-builder.Services.AddTransient<ReminderServices>();
-builder.Services.AddTransient<EmailServices>();
+builder.Services.AddScoped<ITodoService, TodoServices>();
+builder.Services.AddScoped<IUserService, UserServices>();
+builder.Services.AddTransient<IJwtService, JwtService>();
+builder.Services.AddTransient<ICryptographyService, CryptographyService>();
 
 builder.Services.AddCors(options =>
 {
