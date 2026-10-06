@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Distributed;
+using System.Text.Json;
 using TodoApp_Backend.Constant;
 using TodoApp_Backend.Data;
 using TodoApp_Backend.DTOs;
@@ -8,15 +10,39 @@ namespace TodoApp_Backend.Services
 {
     public class TodoServices
     {
-        public readonly TodoAppDbContext _db;
-        public TodoServices(TodoAppDbContext db)
+        private readonly TodoAppDbContext _db;
+        private readonly IDistributedCache _c;
+
+        public TodoServices(TodoAppDbContext db, IDistributedCache c)
         {
              _db = db;
+             _c = c;
         }
 
         public async Task<List<GetTodoModel>> GetTodo(string? title, string? sort, string? prioritySort, Guid userId)
         {
-            var query = _db.Todos.AsQueryable();
+            var cacheString = $"todos_{userId}";
+            List<Todo> rawTodo;
+
+            var getCached = await _c.GetStringAsync(cacheString);
+
+            if (!string.IsNullOrEmpty(getCached))
+            {
+                rawTodo = JsonSerializer.Deserialize<List<Todo>>(getCached);
+            }
+            else
+            {
+                rawTodo = await _db.Todos.Where(x => x.UserId == userId).ToListAsync();
+
+                var cacheOptions = new DistributedCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15)
+                };
+
+                await _c.SetStringAsync(cacheString, JsonSerializer.Serialize(rawTodo), cacheOptions);
+            }
+
+            var query = rawTodo.AsEnumerable();
 
             query = query.Where(x => x.UserId == userId);
 
@@ -25,7 +51,7 @@ namespace TodoApp_Backend.Services
                 query = query.Where(Q => Q.Title.ToLower().Contains(title.ToLower().Trim()));
             }
 
-            IOrderedQueryable<Todo> orderedQuery;
+            IOrderedEnumerable<Todo> orderedQuery;
 
             if (!string.IsNullOrWhiteSpace(prioritySort))
             {
@@ -53,9 +79,7 @@ namespace TodoApp_Backend.Services
                 };
             }
 
-            var todos = await orderedQuery.ToListAsync();
-
-            return todos.Select(t => new GetTodoModel
+            return orderedQuery.Select(t => new GetTodoModel
             {
                 id = t.Id,
                 title = t.Title,
@@ -85,6 +109,7 @@ namespace TodoApp_Backend.Services
 
             _db.Todos.Add(newData);
             await _db.SaveChangesAsync();
+            await _c.RemoveAsync($"todos_{userId}");
 
             return "Success";
         }
@@ -107,6 +132,7 @@ namespace TodoApp_Backend.Services
             isIdExist.TodoPriority = Enum.Parse<PriorityEnum>(edit.TodoPriority, true);
 
             await _db.SaveChangesAsync();
+            await _c.RemoveAsync($"todos_{isIdExist.UserId}");
 
             return "Success";
         }
@@ -134,6 +160,7 @@ namespace TodoApp_Backend.Services
             }
 
             await _db.SaveChangesAsync();
+            await _c.RemoveAsync($"todos_{isIdExist.UserId}");
 
             return "Success";
         }
@@ -152,6 +179,7 @@ namespace TodoApp_Backend.Services
             _db.Todos.Remove(isIdExist);
 
             await _db.SaveChangesAsync();
+            await _c.RemoveAsync($"todos_{isIdExist.UserId}");
 
             return "Success";
         }

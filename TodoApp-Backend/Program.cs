@@ -65,6 +65,12 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = "localhost:6379";
+    options.InstanceName = "TodoApp_";
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
