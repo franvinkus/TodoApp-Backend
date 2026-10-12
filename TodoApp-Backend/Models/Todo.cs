@@ -17,4 +17,5 @@ public partial class Todo
     public DateTime? FinishedDate { get; set; }
     public bool IsFinished { get; set; }
     public PriorityEnum TodoPriority { get; set; }
+    public ICollection<Sub_Todo> Sub_Todos { get; set; } = new List<Sub_Todo>();
 }
