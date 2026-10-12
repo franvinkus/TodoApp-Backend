@@ -11,9 +11,9 @@ namespace TodoApp_Backend.Controllers
     [ApiController]
     public class UserController : ControllerBase
     {
-        private readonly UserServices _services;
+        private readonly IUserService _services;
 
-        public UserController(UserServices services)
+        public UserController(IUserService services)
         {
             _services = services;
         }

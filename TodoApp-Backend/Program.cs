@@ -1,21 +1,18 @@
-using Hangfire;
-using Hangfire.PostgreSql;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Resend;
 using System.Text;
 using TodoApp_Backend.Data;
-using TodoApp_Backend.Services;
+using TodoApp_Backend.Repositories.Implementation;
+using TodoApp_Backend.Repositories.Interface;
+using TodoApp_Backend.Services.Implementation;
 using TodoApp_Backend.Services.Interface;
 
 var builder = WebApplication.CreateBuilder(args);
 var configuration = builder.Configuration;
 
-// Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -58,10 +55,14 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-builder.Services.AddTransient<TodoServices>();
-builder.Services.AddTransient<UserServices>();
-builder.Services.AddTransient<ReminderServices>();
-builder.Services.AddTransient<EmailServices>();
+builder.Services.AddScoped<ITodoService, TodoServices>();
+builder.Services.AddScoped<IUserService, UserServices>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ITodoRepository, TodoRepository>();
+builder.Services.AddTransient<IJwtService, JwtService>();
+builder.Services.AddTransient<ICryptographyService, CryptographyService>();
+builder.Services.AddTransient<IReminderService, ReminderServices>();
+builder.Services.AddTransient<IEmailService, EmailServices>();
 
 builder.Services.AddCors(options =>
 {
@@ -75,18 +76,13 @@ builder.Services.AddCors(options =>
         });
 });
 
-var app = builder.Build();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = configuration.GetConnectionString("Redis");
+    options.InstanceName = "TodoApp_";
+});
 
-app.UseHangfireDashboard();
-RecurringJob.AddOrUpdate<ReminderServices>(
-    "daily-reminder-email",
-    service => service.SendDailyReminder(),
-    Cron.Daily(8,0),
-    new RecurringJobOptions
-        {
-            TimeZone = TimeZoneInfo.FindSystemTimeZoneById("Asia/Jakarta")
-        }
-    );
+var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

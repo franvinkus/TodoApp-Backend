@@ -22,6 +22,29 @@ namespace TodoApp_Backend.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("TodoApp_Backend.Models.Sub_Todo", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<bool>("IsDone")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("TodoId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TodoId");
+
+                    b.ToTable("Sub_Todo");
+                });
+
             modelBuilder.Entity("TodoApp_Backend.Models.Todo", b =>
                 {
                     b.Property<int>("Id")
@@ -52,9 +75,8 @@ namespace TodoApp_Backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("TodoPriority")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("TodoPriority")
+                        .HasColumnType("integer");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uuid");
@@ -95,6 +117,17 @@ namespace TodoApp_Backend.Migrations
                     b.ToTable("Users");
                 });
 
+            modelBuilder.Entity("TodoApp_Backend.Models.Sub_Todo", b =>
+                {
+                    b.HasOne("TodoApp_Backend.Models.Todo", "Todo")
+                        .WithMany("Sub_Todos")
+                        .HasForeignKey("TodoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Todo");
+                });
+
             modelBuilder.Entity("TodoApp_Backend.Models.Todo", b =>
                 {
                     b.HasOne("TodoApp_Backend.Models.Users", "User")
@@ -104,6 +137,11 @@ namespace TodoApp_Backend.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("TodoApp_Backend.Models.Todo", b =>
+                {
+                    b.Navigation("Sub_Todos");
                 });
 #pragma warning restore 612, 618
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using TodoApp_Backend.Constant;
 
 namespace TodoApp_Backend.Models;
 
@@ -15,5 +16,6 @@ public partial class Todo
     public DateTime CreatedDate { get; set; }
     public DateTime? FinishedDate { get; set; }
     public bool IsFinished { get; set; }
-    public string TodoPriority { get; set; } = string.Empty;
+    public PriorityEnum TodoPriority { get; set; }
+    public ICollection<Sub_Todo> Sub_Todos { get; set; } = new List<Sub_Todo>();
 }
