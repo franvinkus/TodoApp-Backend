@@ -10,57 +10,30 @@ namespace TodoApp_Backend.Repositories.Implementation
 {
     public class TodoRepository : ITodoRepository
     {
-        private readonly IDistributedCache _d;
         private readonly TodoAppDbContext _db;
 
-        public TodoRepository(IDistributedCache d, TodoAppDbContext db)
+        public TodoRepository(TodoAppDbContext db)
         {
-            _d = d;
             _db = db;
         }
 
         public async Task<List<Todo>> GetRawTodoById(Guid userId, CancellationToken cancellationToken)
         {
-            var cacheString = $"todos_{userId}";
-            var getCached = await _d.GetStringAsync(cacheString, cancellationToken);
-
-            var jsonOptions = new JsonSerializerOptions
-            {
-                ReferenceHandler = ReferenceHandler.IgnoreCycles
-            };
-
-            if (!string.IsNullOrEmpty(getCached))
-            {
-                return JsonSerializer.Deserialize<List<Todo>>(getCached, jsonOptions);
-            }
-            
-            var rawTodos = await _db.Todos
+            return await _db.Todos
                 .AsNoTracking()
+                .Include(x => x.Sub_Todos)
                 .Where(x => x.UserId == userId)
                 .ToListAsync(cancellationToken);
-
-            var cacheOptions = new DistributedCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(15)
-            };
-
-            await _d.SetStringAsync(cacheString, JsonSerializer.Serialize(rawTodos, jsonOptions), cacheOptions, cancellationToken);
-
-            return rawTodos;
         }
 
-        public async Task<Todo?> GetTodoById(int todoId, CancellationToken cancellationToken)
+        public async Task<Todo?> GetTodoById(int todoId, Guid userId, CancellationToken cancellationToken)
         {
             var todo = await _db.Todos
-                .FirstOrDefaultAsync(x => x.Id == todoId, cancellationToken);
+                .Include(x => x.Sub_Todos)
+                .Where(x => x.Id == todoId && x.UserId == userId)
+                .FirstOrDefaultAsync(cancellationToken);
 
             return todo;
-        }
-
-        public async Task RemoveCache(Guid userId, CancellationToken cancellationToken)
-        {
-            var cacheString = $"todos_{userId}";
-            await _d.RemoveAsync(cacheString, cancellationToken);
         }
 
         public void AddTodo(Todo todo)

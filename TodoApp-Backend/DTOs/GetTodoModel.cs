@@ -1,4 +1,5 @@
 ﻿using System.Text.Json.Serialization;
+using TodoApp_Backend.Models;
 
 namespace TodoApp_Backend.DTOs
 {
@@ -15,6 +16,8 @@ namespace TodoApp_Backend.DTOs
         public string endDate { get; set; } = string.Empty;
         public bool isCompleted { get; set; }
         public string TodoPriority { get; set; } = string.Empty;
+        public int totalSubTodos { get; set; }
+        public int completedSubTodos { get; set; }
 
     }
 }

@@ -17,6 +17,7 @@ public partial class TodoAppDbContext : DbContext
 
     public virtual DbSet<Todo> Todos { get; set; }
     public virtual DbSet<Users> Users { get; set; }
+    public virtual DbSet<Sub_Todo> Sub_Todo { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

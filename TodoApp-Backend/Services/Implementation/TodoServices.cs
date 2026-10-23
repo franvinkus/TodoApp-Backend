@@ -1,8 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
-using TodoApp_Backend.Constant;
-using TodoApp_Backend.Data;
+﻿using TodoApp_Backend.Constant;
 using TodoApp_Backend.DTOs;
 using TodoApp_Backend.Models;
 using TodoApp_Backend.Repositories.Interface;
@@ -59,12 +55,63 @@ namespace TodoApp_Backend.Services.Implementation
                 startDate = t.StartDate.ToString("dd-MM-yyyy HH:mm:ss"),
                 endDate = t.EndDate.ToString("dd-MM-yyyy HH:mm:ss"),
                 isCompleted = t.IsFinished,
-                TodoPriority = t.TodoPriority.ToString()
+                TodoPriority = t.TodoPriority.ToString(),
+                totalSubTodos = t.Sub_Todos.Count(),
+                completedSubTodos = t.Sub_Todos.Count(st => st.IsDone)
             }).ToList();
+        }
+
+        public async Task<GetTodoDetailModel?> GetTodoById(int id, Guid userId, CancellationToken cancellationToken)
+        {
+            var todo = await _t.GetTodoById(id, userId, cancellationToken);
+            if (todo == null)
+            {
+                return null;
+            }
+
+            return new GetTodoDetailModel
+            {
+                Id = todo.Id,
+                Title = todo.Title,
+                Description = todo.Description,
+                CreatedAt = todo.CreatedDate.ToString("dd-MM-yyyy HH:mm:ss"),
+                FinishedAt = todo.FinishedDate.HasValue ? todo.FinishedDate.Value.ToString("dd-MM-yyyy HH:mm:ss") : "-",
+                StartDate = todo.StartDate.ToString("dd-MM-yyyy HH:mm:ss"),
+                EndDate = todo.EndDate.ToString("dd-MM-yyyy HH:mm:ss"),
+                IsCompleted = todo.IsFinished,
+                TodoPriority = todo.TodoPriority.ToString(),
+                SubTodos = todo.Sub_Todos.Select(st => new GetSubTodoModel
+                {
+                    Id = st.Id,
+                    Title = st.Title,
+                    IsDone = st.IsDone
+                }).ToList()
+            };
         }
 
         public async Task<string> PostTodo(PostTodoModel req, Guid userId, CancellationToken cancellationToken)
         {
+            PriorityEnum finalPriority = PriorityEnum.Low;
+            if(!string.IsNullOrEmpty(req.TodoPriority))
+            {
+                Enum.TryParse<PriorityEnum>(req.TodoPriority, true, out finalPriority);
+            }
+
+            List<Sub_Todo> sub_Todos = new List<Sub_Todo>();
+
+            if(req.SubTodos != null)
+            {
+                foreach(var subTodo in req.SubTodos)
+                {
+                    sub_Todos.Add(new Sub_Todo
+                    {
+                        Id = Guid.NewGuid(),
+                        Title = subTodo.Title,
+                        IsDone = subTodo.IsDone
+                    });
+                }
+            }
+
             var newData = new Models.Todo
             {
                 Title = req.title,
@@ -73,21 +120,21 @@ namespace TodoApp_Backend.Services.Implementation
                 StartDate = DateTime.SpecifyKind(Convert.ToDateTime(req.startDate), DateTimeKind.Utc),
                 EndDate = DateTime.SpecifyKind(Convert.ToDateTime(req.endDate), DateTimeKind.Utc),
                 IsFinished = false,
-                TodoPriority = Enum.Parse<PriorityEnum>(req.TodoPriority, true),
+                TodoPriority = finalPriority,
                 UserId = userId,
+                Sub_Todos = sub_Todos
             };
 
             
             _t.AddTodo(newData);
             await _t.SaveTodo(cancellationToken);
-            await _t.RemoveCache(userId, cancellationToken);
 
             return "Success";
         }
 
-        public async Task<string> PutTodo(int id, PutTodoModel edit, CancellationToken cancellationToken)
+        public async Task<string> PutTodo(int id, PutTodoModel edit, Guid userId, CancellationToken cancellationToken)
         {
-            var isIdExist = await _t.GetTodoById(id, cancellationToken);
+            var isIdExist = await _t.GetTodoById(id, userId, cancellationToken);
 
             if (isIdExist == null)
             {
@@ -100,16 +147,29 @@ namespace TodoApp_Backend.Services.Implementation
             isIdExist.EndDate = DateTime.SpecifyKind(Convert.ToDateTime(edit.endDate), DateTimeKind.Utc);
             isIdExist.TodoPriority = Enum.Parse<PriorityEnum>(edit.TodoPriority, true);
 
+            isIdExist.Sub_Todos.Clear();
+
+            if (edit.SubTodos != null && edit.SubTodos.Any())
+            {
+                foreach (var sub in edit.SubTodos)
+                {
+                    isIdExist.Sub_Todos.Add(new Sub_Todo
+                    {
+                        Title = sub.Title,
+                        IsDone = sub.IsDone
+                    });
+                }
+            }
+
 
             await _t.SaveTodo(cancellationToken);
-            await _t.RemoveCache(isIdExist.UserId, cancellationToken);
 
             return "Success";
         }
 
-        public async Task<string> PatchTodo(int id, CancellationToken cancellationToken)
+        public async Task<string> PatchTodo(int id, Guid userId, CancellationToken cancellationToken)
         {
-            var isIdExist = await _t.GetTodoById(id, cancellationToken);
+            var isIdExist = await _t.GetTodoById(id, userId, cancellationToken);
 
             if (isIdExist == null)
             {
@@ -128,14 +188,13 @@ namespace TodoApp_Backend.Services.Implementation
             }
 
             await _t.SaveTodo(cancellationToken);
-            await _t.RemoveCache(isIdExist.UserId, cancellationToken);
 
             return "Success";
         }
 
-        public async Task<string> DeleteTodo(int id, CancellationToken cancellationToken)
+        public async Task<string> DeleteTodo(int id, Guid userId, CancellationToken cancellationToken)
         {
-            var isIdExist = await _t.GetTodoById(id, cancellationToken);
+            var isIdExist = await _t.GetTodoById(id, userId, cancellationToken);
 
             if (isIdExist == null)
             {
@@ -145,7 +204,6 @@ namespace TodoApp_Backend.Services.Implementation
             _t.RemoveTodo(isIdExist);
 
             await _t.SaveTodo(cancellationToken);
-            await _t.RemoveCache(isIdExist.UserId, cancellationToken);
 
             return "Success";
         }

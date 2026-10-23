@@ -26,6 +26,21 @@ namespace TodoApp_Backend.Controller
             return Ok(data);
         }
 
+        [HttpGet("Get-Detail/{id}")]
+        [Authorize]
+        public async Task<IActionResult> GetDetail(int id, CancellationToken cancellationToken)
+        {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userIdString = Guid.Parse(userId);
+            var data = await _services.GetTodoById(id, userIdString, cancellationToken);
+            if(data == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(data);
+        }
+
         // POST api/<TodoController>
         [HttpPost("Post")]
         [Authorize]
@@ -51,7 +66,10 @@ namespace TodoApp_Backend.Controller
                 return BadRequest("Failed To Update");
             }
 
-            var data = await _services.PutTodo(id, edit, cancellationToken);
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userIdString = Guid.Parse(userId);
+
+            var data = await _services.PutTodo(id, edit, userIdString, cancellationToken);
             return Ok(data);
 
         }
@@ -60,12 +78,15 @@ namespace TodoApp_Backend.Controller
         [Authorize]
         public async Task<IActionResult> Patch(int id, CancellationToken cancellationToken)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userIdString = Guid.Parse(userId);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest("Failed To Update");
             }
 
-            var data = await _services.PatchTodo(id, cancellationToken);
+            var data = await _services.PatchTodo(id, userIdString, cancellationToken);
             return Ok(data);
 
         }
@@ -75,12 +96,15 @@ namespace TodoApp_Backend.Controller
         [Authorize]
         public async Task<IActionResult> Delete(int id, CancellationToken cancellationToken)
         {
+            var userId = User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+            var userIdString = Guid.Parse(userId);
+
             if (!ModelState.IsValid)
             {
                 return BadRequest("Failed To Update");
             }
 
-            var data = await _services.DeleteTodo(id, cancellationToken);
+            var data = await _services.DeleteTodo(id, userIdString, cancellationToken);
             return Ok(data);
         }
     }

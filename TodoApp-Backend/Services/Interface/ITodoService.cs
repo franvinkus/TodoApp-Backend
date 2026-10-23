@@ -5,10 +5,11 @@ namespace TodoApp_Backend.Services.Interface
     public interface ITodoService
     {
         Task<List<GetTodoModel>> GetTodo(string? title, string? sort, string? prioritySort, Guid userId, CancellationToken cancellationToken);
+        Task<GetTodoDetailModel?> GetTodoById(int id, Guid userId, CancellationToken cancellationToken);
         Task<string> PostTodo(PostTodoModel req, Guid userId, CancellationToken cancellationToken);
-        Task<string> PutTodo(int id, PutTodoModel edit, CancellationToken cancellationToken);
-        Task<string> PatchTodo(int id, CancellationToken cancellationToken);
-        Task<string> DeleteTodo(int id, CancellationToken cancellationToken);
+        Task<string> PutTodo(int id, PutTodoModel edit, Guid userId, CancellationToken cancellationToken);
+        Task<string> PatchTodo(int id, Guid userId, CancellationToken cancellationToken);
+        Task<string> DeleteTodo(int id, Guid userId, CancellationToken cancellationToken);
 
     }
 }
