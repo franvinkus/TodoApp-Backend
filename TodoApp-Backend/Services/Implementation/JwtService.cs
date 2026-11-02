@@ -37,5 +37,13 @@ namespace TodoApp_Backend.Services.Implementation
 
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+        public string GenerateRefreshTokenString()
+        {
+            var randomNumber = new byte[64];
+            using var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
+            rng.GetBytes(randomNumber);
+            return Convert.ToBase64String(randomNumber);
+        }
     }
 }

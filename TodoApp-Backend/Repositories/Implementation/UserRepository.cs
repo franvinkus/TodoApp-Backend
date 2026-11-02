@@ -37,10 +37,26 @@ namespace TodoApp_Backend.Repositories.Implementation
             _db.Users.Remove(user);
         }
 
+        public void AddRefreshToken(RefreshTokens refreshToken)
+        {
+            _db.RefreshTokens.Add(refreshToken);
+        }
+
+        public void RemoveRefreshToken(RefreshTokens refreshToken)
+        {
+            _db.RefreshTokens.Remove(refreshToken);
+        }
+
         public async Task SaveUser(CancellationToken cancellationToken)
         {
             await _db.SaveChangesAsync(cancellationToken);
         }
 
+        public async Task<RefreshTokens?> IsTokenExist(string oldToken, CancellationToken cancellationToken)
+        {
+            return await _db.RefreshTokens
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x => x.Token == oldToken, cancellationToken);
+        }
     }
 }

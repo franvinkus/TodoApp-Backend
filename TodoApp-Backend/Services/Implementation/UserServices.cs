@@ -69,12 +69,65 @@ namespace TodoApp_Backend.Services.Implementation
             else
             {
                 var token = _j.GenerateToken(checkUsernamel);
+                var refreshTokenString = _j.GenerateRefreshTokenString();
+
+                var refreshToken = new RefreshTokens
+                {
+                    Id = Guid.NewGuid(),
+                    Token = refreshTokenString,
+                    UserId = checkUsernamel.Id,
+                    Created = DateTime.UtcNow,
+                    Expires = DateTime.UtcNow.AddDays(7)
+                };
+
+                _u.AddRefreshToken(refreshToken);
+                await _u.SaveUser(cancellationToken);
+
                 return new UsersLoginResponse
                 {
                     Message = "Success",
-                    Token = token
+                    Token = token,
+                    RefreshToken = refreshTokenString
                 };
             }
+        }
+
+        public async Task<bool> Logout(string refreshToken, CancellationToken cancellationToken)
+        {
+            var isExistingToken = await _u.IsTokenExist(refreshToken, cancellationToken);
+            if (isExistingToken != null)
+            {
+                _u.RemoveUser(isExistingToken.User);
+                await _u.SaveUser(cancellationToken);
+                return true;
+            }
+            return false;
+        }
+
+        public async Task<UsersLoginResponse> RefreshToken(string oldToken, CancellationToken cancellationToken)
+        {
+            var isExistingToken = await _u.IsTokenExist(oldToken, cancellationToken);
+
+            if (isExistingToken == null || isExistingToken.Expires < DateTime.UtcNow)
+            {
+                return new UsersLoginResponse { Message = "Invalid or expired token" };
+            }
+
+            var newJwt = _j.GenerateToken(isExistingToken.User);
+            var newRefreshToken = _j.GenerateRefreshTokenString();
+
+            isExistingToken.Token = newRefreshToken;
+            isExistingToken.Expires = DateTime.UtcNow.AddDays(7);
+            isExistingToken.Created = DateTime.UtcNow;
+
+            await _u.SaveUser(cancellationToken);
+
+            return new UsersLoginResponse
+            {
+                Message = "Success",
+                Token = newJwt,
+                RefreshToken = newRefreshToken
+            };
         }
     }
 }

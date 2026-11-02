@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TodoApp_Backend.DTOs;
+using TodoApp_Backend.Models;
 using TodoApp_Backend.Services.Interface;
 
 namespace TodoApp_Backend.Controllers
@@ -46,11 +47,12 @@ namespace TodoApp_Backend.Controllers
                     Expires = DateTime.UtcNow.AddDays(7)
                 };
 
-                Response.Cookies.Append("jwt", result.Token, cookieOptions);
+                Response.Cookies.Append("refreshToken", result.RefreshToken, cookieOptions);
 
                 return Ok(new {
                     Message = "Login sukses" ,
-                    username = model.Username
+                    username = model.Username,
+                    token = result.Token
                 });
             }
             else
@@ -60,18 +62,48 @@ namespace TodoApp_Backend.Controllers
         }
 
         [HttpPost("user-logout")]
-        public IActionResult Logout()
+        public async Task<IActionResult> Logout(CancellationToken cancellationToken)
         {
-            Response.Cookies.Delete("jwt", new CookieOptions
+            if(Request.Cookies.TryGetValue("refreshToken", out var Token))
             {
-                HttpOnly = true, 
-                Secure = Request.IsHttps,
-                SameSite = SameSiteMode.Lax
+                await _services.Logout(Token, cancellationToken);
+            }
 
-            });
+            Response.Cookies.Delete("refreshToken");
 
             return Ok(new { Message = "Logout sukses" });
 
+        }
+
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshToken(CancellationToken cancellationToken)
+        {
+            if(!Request.Cookies.TryGetValue("refreshToken", out var oldRefreshToken))
+            {
+                return Unauthorized(new { Message = "No Refresh Token Provided." });
+            }
+
+            var result = await _services.RefreshToken(oldRefreshToken, cancellationToken);
+
+            if (result.Message.ToLower() != "success")
+            {
+                return Unauthorized(new { Message = result.Message });
+            }
+
+            var cookieOptions = new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = Request.IsHttps,
+                SameSite = SameSiteMode.Lax,
+                Expires = DateTime.UtcNow.AddDays(7)
+            };
+
+            Response.Cookies.Append("refreshToken", result.RefreshToken, cookieOptions);
+
+            return Ok(new
+            {
+                token = result.Token
+            });
         }
 
         [HttpGet("health")]

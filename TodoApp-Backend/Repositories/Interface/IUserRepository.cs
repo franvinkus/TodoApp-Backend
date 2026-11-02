@@ -8,6 +8,9 @@ namespace TodoApp_Backend.Repositories.Interface
         Task<Users?> CheckUserByUsername(string username, CancellationToken cancellationToken);
         void AddUser(Users user);
         void RemoveUser(Users user);
+        void AddRefreshToken(RefreshTokens refreshToken);
+        void RemoveRefreshToken(RefreshTokens refreshToken);
         Task SaveUser(CancellationToken cancellationToken);
+        Task<RefreshTokens?> IsTokenExist(string oldToken, CancellationToken cancellationToken);
     }
 }
