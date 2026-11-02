@@ -97,7 +97,7 @@ namespace TodoApp_Backend.Services.Implementation
             var isExistingToken = await _u.IsTokenExist(refreshToken, cancellationToken);
             if (isExistingToken != null)
             {
-                _u.RemoveUser(isExistingToken.User);
+                _u.RemoveRefreshToken(isExistingToken);
                 await _u.SaveUser(cancellationToken);
                 return true;
             }
