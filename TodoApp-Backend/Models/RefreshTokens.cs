@@ -8,6 +8,6 @@
         public DateTime Created { get; set; }
         public DateTime? Revoked { get; set; }
         public Guid UserId { get; set; }
-        public Users user { get; set; } = null!;
+        public Users User { get; set; } = null!;
     }
 }
