@@ -34,17 +34,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = false,
         };
 
-        option.Events = new JwtBearerEvents
-        {
-            OnMessageReceived = context =>
-            {
-                if (context.Request.Cookies.ContainsKey("jwt"))
-                {
-                    context.Token = context.Request.Cookies["jwt"];
-                }
-                return Task.CompletedTask;
-            }
-        };
     });
 
 builder.Services.AddScoped<ITodoService, TodoServices>();
@@ -85,6 +74,8 @@ if (app.Environment.IsDevelopment())
 app.UseRouting();
 app.UseCors("AllowAll");
 //app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
