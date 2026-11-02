@@ -11,4 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Call Render Deploy Hook
-        run: curl -X POST "${{ secrets.GITHUB_TOKEN }}"
+        run: curl -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
